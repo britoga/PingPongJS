@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Animacao basica</title>
+  </head>
+
+  <body>
+    <canvas id="folha" width="600" height="500">  </canvas>
+
+    <script>
+
+      //Colocando atraso de intervalo de 30 segundos
+      // o window.onload inicia toda vez que a gente abre a pagina
+      window.onload = function() {
+        iniciar();
+
+        setInterval(principal, 1000 / 40);
+      }
+
+
+        // Inicia quando aberto a pagina, puxando as variaveis e o inicio da movimentação do mouse
+        // ao declarar variaveis locais, que executam só no range dela, utilizamos o VAR variavel,
+        // Mas como vamos tornar essas variaveis globais, declaramos elas sem o VAR
+        function iniciar(){
+        // Declaração das variaveis gerais(Desenhos)
+        folhaDesenho = document.getElementById("folha");
+        areaDesenho = folhaDesenho.getContext("2d");
+        // Declaração das variaveis dos objetos
+        larguraCampo = 600;
+        alturaCampo = 500;
+        espessuraRede = 5;
+        // Bolinha
+        diametroBola = 7;
+        // Efeito que a raquete pode inverter os valores para rebater
+        efeitoRaquete = 0.3;
+        velocidadeJogador2 = 5;
+
+        // ------------------------------------------------------------------------------------------------------------//
+        // Essas variaveis precisaram ficar antes da execução, pois caso tivesse ficado dentro da function executar
+        // toda vez o programa ia voltar nela repetidas vezes e sempre voltaria para o eixo X=10 e Y=10
+        // Fazendo assim só piscar na tela sem movimentar de fato
+        posicaoBolaX = 10;
+        posicaoBolaY = 10;
+        velocidadePosicaoX = 3;
+        velocidadePosicaoY = 3;
+        posicaoJogador1 = 200;
+        posicaoJogador2 = 200;
+        espessuraRaquete = 11;
+        alturaRaquete = 100;
+        pontuacaoJogador1 = 0;
+        pontuacaoJogador2 = 0;
+
+          folhaDesenho.addEventListener('mousemove', function(e){
+            posicaoJogador1 = e.clientY - alturaRaquete / 2;
+          });
+          }
+
+      // Função principal para chamar o desenho e realizar os calculos
+      function principal()  {
+        desenhar();
+        calcular();
+      }
+
+      // Desenho do campo
+      function desenhar(){
+        // Campo todo
+        areaDesenho.fillStyle = "#0B610B";  //Cor verde
+        areaDesenho.fillRect(0, 0, larguraCampo, alturaCampo); // (x, y, width, height);
+
+        // Dividindo campo com uma linha no meio
+        areaDesenho.fillStyle = "#ffffff";  //Cor branca
+        areaDesenho.fillRect(larguraCampo / 2 - espessuraRede / 2, 0, espessuraRede, alturaCampo);
+
+        // Bola
+        areaDesenho.fillStyle = "#ffffff";  //Cor branca
+        areaDesenho.fillRect(posicaoBolaX - diametroBola /2, posicaoBolaY - diametroBola /2, diametroBola, diametroBola);
+
+
+        // Raquete1
+        areaDesenho.fillStyle = "#ffffff"; //Cor branca
+        areaDesenho.fillRect(0, posicaoJogador1, espessuraRaquete, alturaRaquete);
+
+        // Raquete2
+        areaDesenho.fillStyle = "#ffffff"; //Cor branca
+        areaDesenho.fillRect(larguraCampo - espessuraRaquete, posicaoJogador2, espessuraRaquete, alturaRaquete);
+
+        // escrever a pontuação dos jogadores
+        areaDesenho.fillText("Humano - " + pontuacaoJogador1 + " Pontos", 100, 100);  // Nossa pontuação
+        areaDesenho.fillText("Robo - " + pontuacaoJogador2 + " Pontos", larguraCampo - 200, 100 );  // Pontuação do Robô
+      }
+
+      // Executando a declaração de função feita acima
+      function calcular() {
+
+
+        posicaoBolaX = posicaoBolaX + velocidadePosicaoX;
+        posicaoBolaY = posicaoBolaY + velocidadePosicaoY;
+
+        // Lateral superior
+        if(posicaoBolaY < 0 && velocidadePosicaoY < 0) {
+          velocidadePosicaoY = -velocidadePosicaoY;
+        }
+
+        // Lateral inferior
+        if(posicaoBolaY > alturaCampo && velocidadePosicaoY > 0) {
+          velocidadePosicaoY = -velocidadePosicaoY;
+        }
+
+        // Borda lado esquerdo
+        if(posicaoBolaY < 0 && velocidadePosicaoY < 0) {
+          velocidadePosicaoY = -velocidadePosicaoY;
+        }
+
+        // Borda lado direito
+        if (posicaoBolaY > larguraCampo && velocidadePosicaoY > 0) {
+          velocidadePosicaoY = -velocidadePosicaoY;
+        }
+
+
+
+
+        // Verifica se o jogador 2 fez ponto  --- HUMANO
+        if(posicaoBolaX < 0) {
+          if(posicaoBolaY > posicaoJogador1 && posicaoBolaY < posicaoJogador1 + alturaRaquete){
+            // Rebater a  Bola
+            velocidadePosicaoX = -velocidadePosicaoX;
+
+            var diferencaY = posicaoBolaY - (posicaoJogador1 + alturaRaquete / 2);
+            velocidadePosicaoY = diferencaY * efeitoRaquete;
+          } else {
+            pontuacaoJogador2 = pontuacaoJogador2 + 1;
+
+            // Colocar bola no centro
+            continuar();
+          }
+        }
+
+
+        // Verifica se o jogador 1 fez ponto  --- ROBO
+        if(posicaoBolaX > larguraCampo) {
+          if(posicaoBolaY > posicaoJogador2 && posicaoBolaY < posicaoJogador2 + alturaRaquete){
+            // Rebater a Bolinha
+            velocidadePosicaoX = -velocidadePosicaoX;
+
+            var diferencaY = posicaoBolaY - (posicaoJogador2 + alturaRaquete / 2);
+            velocidadePosicaoY = diferencaY * efeitoRaquete;
+          } else {
+            pontuacaoJogador1 = pontuacaoJogador1 + 1;
+
+            // Colocar bola no centro
+            continuar();
+
+          }
+        }
+
+
+        // Atualiza a posição 2
+        if(posicaoJogador2 + alturaRaquete / 2 < posicaoBolaY) {
+          posicaoJogador2 = posicaoJogador2 + velocidadeJogador2;
+        } else {
+          posicaoJogador2 = posicaoJogador2 - velocidadeJogador2;
+        }
+
+
+
+
+        console.log("verificando requisições");
+      }
+
+      // colocar bolinha no centro após alguém ter feito um ponto
+      function continuar()  {
+
+        posicaoBolaX = larguraCampo / 2;
+        posicaoBolaY = alturaCampo / 2;
+        velocidadePosicaoX = -velocidadePosicaoX;
+        velocidadePosicaoY = 3;
+
+      }
+    </script>
+
+  </body>
+</html>
